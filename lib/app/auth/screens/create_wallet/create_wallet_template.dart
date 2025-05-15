@@ -75,9 +75,9 @@ class CreateWalletTemplate extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          IconButton(
-            icon: Icon(Icons.copy, color: Theme.of(context).kTextColor),
+          Button(
+            label: "Copy seed phrase",
+            type: ButtonType.GHOST,
             onPressed: () {
               Clipboard.setData(ClipboardData(text: mnemonicWords.join(' ')));
               ScaffoldMessenger.of(context).showSnackBar(

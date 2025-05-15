@@ -16,16 +16,10 @@ class LogoHeaderTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      persistentFooterButtons: footer != null
-          ? [
-              footer!,
-            ]
-          : null,
+      persistentFooterButtons: footer != null ? [footer!] : null,
       body: CustomScrollView(
         slivers: [
-          LogoHeader(
-            avoidPadding: avoidHeaderPadding,
-          ),
+          LogoHeader(avoidPadding: avoidHeaderPadding),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),

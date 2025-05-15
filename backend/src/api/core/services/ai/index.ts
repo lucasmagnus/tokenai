@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import OpenAI from "openai"
 
 const OPEN_AI = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY ?? 'asd',
+  apiKey: process.env.OPENAI_API_KEY,
 })
 
 export async function sendToAI(chatHistory: any[]) {
@@ -36,7 +36,7 @@ export async function sendToAI(chatHistory: any[]) {
 
     return { parsedCommand, chatHistory }
   } catch (error) {
-    console.error('Error IA', error)
+    console.error('Error AI', error)
     throw error
   }
 }

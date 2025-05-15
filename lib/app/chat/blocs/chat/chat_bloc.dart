@@ -39,9 +39,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     response.when(
       success: (data) {
-        print(data);
         final aiMessage = ChatMessage(
-          text: data['data']?['data']?['action']?['payload']?['message'] ?? 'No response from AI',
+          text: data['data']?['message'] ?? '👍',
           time: DateTime.now().toString().split(' ')[1].substring(0, 5),
           isMe: false,
           action: data['data']?['data']?['action']?['action'],
@@ -67,7 +66,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _handlePaymentConfirmed(PaymentConfirmed event, Emitter<ChatState> emit) {
     final confirmationMessage = ChatMessage(
-      text: 'Payment confirmed!',
+      text: 'Payment confirmed 👍',
       time: DateTime.now().toString().split(' ')[1].substring(0, 5),
       isMe: false,
     );

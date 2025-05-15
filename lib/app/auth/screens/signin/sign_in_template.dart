@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:tokenai/app/auth/blocs/wallet/wallet_bloc.dart';
@@ -26,14 +27,17 @@ class SignInTemplate extends StatelessWidget {
 
   Widget _form(BuildContext context) {
     return CustomForm(
-      title: AppLocalizations.of(context)!.welcome_back_string,
+      title: "Enter your seed phrase",
       builder: (GlobalKey<FormState> key) {
         final List<String?> words = List<String?>.filled(12, null);
+        final List<TextEditingController> controllers = List.generate(
+          12,
+          (index) => TextEditingController(),
+        );
 
         return [
-          const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             decoration: BoxDecoration(
               color: Theme.of(context).kBackgroundColorLight,
               borderRadius: BorderRadius.circular(12),
@@ -49,6 +53,7 @@ class SignInTemplate extends StatelessWidget {
                         Expanded(
                           child: _WordInput(
                             index: i + 1,
+                            controller: controllers[i],
                             onSaved: (value) => words[i] = value?.trim(),
                           ),
                         ),
@@ -56,6 +61,7 @@ class SignInTemplate extends StatelessWidget {
                         Expanded(
                           child: _WordInput(
                             index: i + 2,
+                            controller: controllers[i + 1],
                             onSaved: (value) => words[i + 1] = value?.trim(),
                           ),
                         ),
@@ -64,6 +70,22 @@ class SignInTemplate extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+          Button(
+            label: "Paste from clipboard",
+            type: ButtonType.GHOST,
+            onPressed: () async {
+              final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+              if (clipboardData?.text != null) {
+                final pastedWords = clipboardData!.text!.trim().split(' ');
+                if (pastedWords.length == 12) {
+                  for (int i = 0; i < 12; i++) {
+                    controllers[i].text = pastedWords[i];
+                    words[i] = pastedWords[i];
+                  }
+                }
+              }
+            },
           ),
           const SizedBox(height: 32),
           BlocBuilder<WalletBloc, WalletState>(
@@ -129,9 +151,14 @@ class SignInTemplate extends StatelessWidget {
 
 class _WordInput extends StatelessWidget {
   final int index;
+  final TextEditingController? controller;
   final void Function(String?)? onSaved;
 
-  const _WordInput({required this.index, required this.onSaved});
+  const _WordInput({
+    required this.index,
+    this.controller,
+    required this.onSaved,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +177,7 @@ class _WordInput extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: TextFormField(
+              controller: controller,
               textInputAction: TextInputAction.next,
               style: TextStyle(
                 color: Theme.of(context).kTextColor,

@@ -38,7 +38,7 @@ export class ListTransactionsUseCase
         id: record.id,
         type: record.type,
         createdAt: record.created_at,
-        account: record.source_account,
+        account: record.to,
         amount: record.amount,
         assetCode: record.asset_code,
         assetIssuer: record.asset_issuer,

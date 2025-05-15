@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tokenai/app/asset/blocs/asset/asset_bloc.dart';
 import 'package:tokenai/app/asset/domain/models/asset.dart';
 import 'package:tokenai/app/asset/utils/asset_colors.dart';
+import 'package:tokenai/app/core/data/services/secure_storage_service_impl.dart';
 import 'package:tokenai/components/atoms/all.dart';
 import 'package:tokenai/app/core/utils/formatters.dart';
+import 'package:tokenai/constants/keys.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'asset_action_bottom_sheet.dart';
@@ -20,20 +22,23 @@ class AssetHeader extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => BlocProvider.value(
-        value: bloc,
-        child: AssetActionBottomSheet(
-          title: '$action ${asset.code}',
-          action: action,
-          bloc: bloc,
-          assetCode: asset.code,
-        ),
-      ),
+      builder:
+          (context) => BlocProvider.value(
+            value: bloc,
+            child: AssetActionBottomSheet(
+              title: '$action ${asset.code}',
+              action: action,
+              bloc: bloc,
+              assetCode: asset.code,
+            ),
+          ),
     );
   }
 
   Future<void> _openStellarExpert(BuildContext context) async {
-    final url = Uri.parse('https://stellar.expert/explorer/testnet/asset/${asset.code}-${asset.issuerWallet}');
+    final url = Uri.parse(
+      'https://stellar.expert/explorer/testnet/asset/${asset.code}-${asset.issuerWallet}',
+    );
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
@@ -82,7 +87,10 @@ class AssetHeader extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(16),
@@ -122,35 +130,49 @@ class AssetHeader extends StatelessWidget {
   }
 
   Widget _buildActions(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionButton(
-            context,
-            'Mint',
-            Icons.add_circle_outline,
-            () => _showActionBottomSheet(context, 'Mint'),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildActionButton(
-            context,
-            'Burn',
-            Icons.remove_circle_outline,
-            () => _showActionBottomSheet(context, 'Burn'),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildActionButton(
-            context,
-            'View',
-            Icons.visibility_outlined,
-            () => _openStellarExpert(context),
-          ),
-        ),
-      ],
+    return FutureBuilder<String?>(
+      future: SecureStorageServiceImpl().getPublicKey(),
+      builder: (context, snapshot) {
+        final publicKey = snapshot.data;
+        final isDistributor = publicKey == DISTRIBUTOR_PK;
+
+        if (!snapshot.hasData) {
+          return Container();
+        }
+
+        return Row(
+          children: [
+            if (isDistributor) ...[
+              Expanded(
+                child: _buildActionButton(
+                  context,
+                  'Mint',
+                  Icons.add_circle_outline,
+                  () => _showActionBottomSheet(context, 'Mint'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildActionButton(
+                  context,
+                  'Burn',
+                  Icons.remove_circle_outline,
+                  () => _showActionBottomSheet(context, 'Burn'),
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
+            Expanded(
+              child: _buildActionButton(
+                context,
+                'View',
+                Icons.visibility_outlined,
+                () => _openStellarExpert(context),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -166,9 +188,7 @@ class AssetHeader extends StatelessWidget {
         backgroundColor: Colors.white.withOpacity(0.2),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -177,10 +197,7 @@ class AssetHeader extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ],
       ),

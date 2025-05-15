@@ -28,6 +28,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final keyPair = KeyPair.fromSecretSeed(secretSeed);
       await FriendBot.fundTestAccount(keyPair.accountId);
 
+      print('public Key: ${keyPair.accountId}');
+      print('secret Key: ${keyPair.secretSeed}');
+
       return Success(mnemonic.sentence.split(' '));
     } on Exception catch (error) {
       return Error(exception: error);

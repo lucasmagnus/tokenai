@@ -33,8 +33,11 @@ class ContactsScreen extends StatelessWidget {
                   Icons.add,
                   color: Theme.of(context).kTextColor,
                 ),
-                onPressed: () {
-                  Navigator.pushNamed(context, CreateContactScreen.ROUTE_NAME);
+                onPressed: () async {
+                  await Navigator.pushNamed(context, CreateContactScreen.ROUTE_NAME);
+                  if (context.mounted) {
+                    context.read<ContactBloc>().add(LoadContacts());
+                  }
                 },
               ),
               transitionBetweenRoutes: true,
@@ -62,66 +65,75 @@ class ContactsScreen extends StatelessWidget {
     }
 
     if (state is ContactLoaded) {
-      if (state.contacts.isEmpty) {
-        return Center(
-          child: Text(
-            'No contacts yet. Add your first contact!',
-            style: TextStyle(color: Theme.of(context).kTextColor),
-          ),
-        );
-      }
-
-      return ListView.builder(
-        itemCount: state.contacts.length,
-        itemBuilder: (context, index) {
-          final contact = state.contacts[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                ContactDetailsScreen.ROUTE_NAME,
-                arguments: {ContactDetailsScreen.CONTACT_ARG: contact},
-              );
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).kBackgroundColorLight,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).kPrimaryColor),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          contact.name,
-                          style: TextStyle(
-                            color: Theme.of(context).kTextColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          formatWallet(contact.wallet),
-                          style: TextStyle(
-                            color: Theme.of(context).kTextColor,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+      return RefreshIndicator(
+        onRefresh: () async {
+          context.read<ContactBloc>().add(LoadContacts());
         },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 100,
+            child: state.contacts.isEmpty
+                ? Center(
+                    child: Text(
+                      'No contacts yet. Add your first contact!',
+                      style: TextStyle(color: Theme.of(context).kTextColor),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: state.contacts.length,
+                    itemBuilder: (context, index) {
+                      final contact = state.contacts[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            ContactDetailsScreen.ROUTE_NAME,
+                            arguments: {ContactDetailsScreen.CONTACT_ARG: contact},
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).kBackgroundColorLight,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Theme.of(context).kPrimaryColor),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      contact.name,
+                                      style: TextStyle(
+                                        color: Theme.of(context).kTextColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      formatWallet(contact.wallet),
+                                      style: TextStyle(
+                                        color: Theme.of(context).kTextColor,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ),
       );
     }
 

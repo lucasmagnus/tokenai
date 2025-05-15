@@ -26,7 +26,6 @@ export class MintAssetUseCase
   };
 
   async handle(payload: MintAssetRequest): Promise<{ message: string; data: any }> {
-    console.log('entrou 1');
     const { code, amount } = this.validate(payload, MintAssetRequest);
 
     const issuerAccount = new StellarPlus.Account.DefaultAccountHandler({
@@ -59,8 +58,6 @@ export class MintAssetUseCase
       amount: amount,
       ...txInvocationConfig,
     });
-
-    console.log('entrou 10')
 
     return {
       message: "Asset minted successfully",

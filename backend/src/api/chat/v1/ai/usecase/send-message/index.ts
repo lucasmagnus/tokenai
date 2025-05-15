@@ -90,7 +90,7 @@ export class SendMessageUseCase
       message: 'Success',
       data: {
         message:
-          message ?? (typeof parsedCommand === 'string' ? parsedCommand : ''),
+          message || (typeof parsedCommand === 'string' ? parsedCommand : parsedCommand?.toString()),
         success: true,
         data: responseData,
         chatHistory,

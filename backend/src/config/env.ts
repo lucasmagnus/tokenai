@@ -8,7 +8,6 @@ import { logger } from 'config/logger'
 const ENV: string = process.env.NODE_ENV || envTypes.DEV || envTypes.TEST
 
 if (process.env.DEPLOY_STAGE === 'local') {
-  console.log('ENTROU 1')
   dotenv.config({
     allowEmptyValues: true,
     path: path.join(__dirname, `../config/.env.${ENV}`),

@@ -32,7 +32,7 @@ class _CustomFormState extends State<CustomForm> {
         children: [
           _formHeader(),
           const SizedBox(
-            height: 48,
+            height: 16,
           ),
           ...widget.builder(_formKey),
         ],

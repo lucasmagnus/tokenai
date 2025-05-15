@@ -92,19 +92,18 @@ class _CreateContactScreenState extends State<CreateContactScreen> {
                     Button(
                       label: "Add Contact",
                       onPressed: () {
-                        state is ContactLoading
-                            ? null
-                            : () {
-                              if (_formKey.currentState!.validate()) {
-                                context.read<ContactBloc>().add(
-                                  AddContact(
-                                    name: _nameController.text,
-                                    wallet: _walletController.text,
-                                  ),
-                                );
-                                Navigator.pop(context);
-                              }
-                            };
+                        {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<ContactBloc>().add(
+                              AddContact(
+                                name: _nameController.text,
+                                wallet: _walletController.text,
+                              ),
+                            );
+                            Navigator.pop(context);
+                          }
+                        }
+                        ;
                       },
                       type: ButtonType.PRIMARY,
                       fullWidth: true,

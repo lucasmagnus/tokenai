@@ -166,7 +166,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
                             ),
                             child: IconButton(
                               icon: Icon(
-                                Icons.mic,
+                                Icons.send,
                                 color: Theme.of(context).kTextColor,
                                 size: 18,
                               ),
