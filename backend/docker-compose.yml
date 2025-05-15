@@ -1,0 +1,53 @@
+volumes:
+  nodejs-typescript-db-data:
+  nodejs-typescript-node-modules:
+
+services:
+  nodejs:
+    container_name: nodejs
+    build:
+      context: ./
+      target: local
+    environment:
+      DEPLOY_STAGE: ${DEPLOY_STAGE:-local}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${NODE_TYPESCRIPT_PORT:-8000}
+      DEBUG: ${DEBUG:-true}
+      DATABASE_TYPE: ${DATABASE_TYPE:-mariadb}
+      DATABASE_HOST: ${DATABASE_HOST:-db}
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_USER: ${DATABASE_USER:-root}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-root}
+      DATABASE_NAME: ${NODE_TYPESCRIPT_DATABASE_NAME:-nodejs-typescript}
+      SOCKET_TIMEOUT: ${SOCKET_TIMEOUT:-2000}
+      SENTRY_DSN: ${SENTRY_DSN:-https://examplePublicKey@o0.ingest.sentry.io/0}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-key}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PASSWORD_RESET_CODE_MAX_NUMBER_TRIES: ${NODE_TYPESCRIPT_PASSWORD_RESET_CODE_MAX_NUMBER_TRIES:-3}
+      PASSWORD_RESET_CODE_TIMEOUT_SECONDS: ${NODE_TYPESCRIPT_PASSWORD_RESET_CODE_TIMEOUT_SECONDS:-30}
+    volumes:
+      - './:/app'
+      - 'nodejs-typescript-node-modules:/app/node_modules'
+    ports:
+      - ${NODE_TYPESCRIPT_PORT:-8000}:${NODE_TYPESCRIPT_PORT:-8000}
+      - 9229:9229
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: nodejs-db
+    image: mariadb:10.6
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: nodejs-typescript
+    volumes:
+      - nodejs-typescript-db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-proot" ]
+      start_period: 3s
+      interval: 3s
+      timeout: 5s
+      retries: 5
